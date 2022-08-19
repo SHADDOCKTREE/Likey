@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title></title>
+    <script src="js/mui.min.js"></script>
+    <link href="css/mui.min.css" rel="stylesheet"/>
+	<link href="css/header.css" rel="stylesheet"/>
+	<link href="iconfont/iconfont.css" rel="stylesheet" />
+    <script type="text/javascript" charset="utf-8">
+      	mui.init();
+		mui.plusReady(function () {
+			plus.navigator.setStatusBarStyle("light");
+		    plus.navigator.setStatusBarBackground("#222222");
+		});
+    </script>
+</head>
+<body>
+	<header class="mui-bar mui-bar-nav title">
+		<h1 id="likey_title" class="mui-title title-color"><b>LIKEY</b></h1>
+	</header>
+	<nav class="mui-bar mui-bar-tab">
+		<a class="mui-tab-item" tapsort="0">
+			<span class="mui-icon iconfont icon-jinruluntan"></span>
+			<span class="mui-tab-label">社区</span>
+		</a>
+		<a class="mui-tab-item" tapsort="1">
+			<span class="mui-icon iconfont icon-lianxiren"></span>
+			<span class="mui-tab-label">朋友</span>
+		</a>
+		<a class="mui-tab-item mui-active" tapsort="2">
+			<span class="mui-icon iconfont icon-liaotian"></span>
+			<span class="mui-tab-label">消息</span>
+		</a>
+		<a class="mui-tab-item" tapsort="3">
+			<span class="mui-icon iconfont icon-wode"></span>
+			<span class="mui-tab-label">我的</span>
+		</a>
+	</nav>
+	<script type="application/javascript">
+		
+		var chatArray = [
+			{
+				pageId: "topic.html",
+				pageUrl: "topic.html"
+			},{
+				pageId: "friends.html",
+				pageUrl: "friends.html"
+			},{
+				pageId: "chatlist.html",
+				pageUrl: "chatlist.html"
+			},{
+				pageId: "me.html",
+				pageUrl: "me.html"
+			}
+		];
+		
+		var pageStyle = {
+			top: "44px",
+			bottom: "50px"
+		};
+		
+		window.onload = function(){
+			window.addEventListener('refresh',function(){
+				 location.reload();//刷新页面
+			})
+		}
+		//程序打开后执行的函数
+		mui.plusReady(function () {
+			
+			netChangeSwith();
+			mui.back = function(){
+				return false;
+			}
+			
+			//
+			//当前active的webview页面
+		    var indexWebView=plus.webview.currentWebview();
+			//向当前主页webview追加那四张子页webview页面
+			for (var i = 0; i<chatArray.length;i++){
+				var page = plus.webview.create(chatArray[i].pageUrl, chatArray[i].pageId, pageStyle);
+				//隐藏webview窗口
+				page.hide();
+				//追加每一个子页面到当前
+				indexWebView.append(page);
+			}
+			plus.webview.show(chatArray[0].pageId);
+			
+			//批量绑定tap事件, 展示不同的页面,即获取点击的页面的pagesort编号(自定义)
+			//把pagesot对应到pageid上进行show
+			mui(" .mui-bar-tab").on("tap","a",function() {
+				var tapsort = this.getAttribute("tapsort");
+				//显示点击的页面
+				plus.webview.show(chatArray[tapsort].pageId,"zoom-fade-out");
+				//隐藏非点击页面
+				for (var i = 0; i<chatArray.length;i++){
+					if(i!=tapsort){
+						plus.webview.hide(chatArray[i].pageId);
+					}
+				}
+			})
+			
+			setTimeout("initData()","1000");
+		});
+		function initData() {
+					var topic = plus.webview.getWebviewById("topic.html");
+					mui.fire(topic, "refresh");
+					
+					var me = plus.webview.getWebviewById("me.html");
+					mui.fire(me, "refresh");
+					
+					var friends = plus.webview.getWebviewById("friends.html");
+					mui.fire(friends, "refresh");
+					
+					var chatlist = plus.webview.getWebviewById("chatlist.html");
+					mui.fire(chatlist, "refresh");
+				}
+				
+		function netChangeSwith(){
+			document.addEventListener("netchange", function(){
+				var connectionStatus = plus.networkinfo.getCurrentType();
+				var likey_title = document.getElementById("likey_title");
+				if (connectionStatus == 0 || connectionStatus == 1) {
+					likey_title.innerHTML = "<b>LIKEY(您未连接网络)</b>"
+				} else{
+					likey_title.innerHTML = "<b>LIKEY</b>"
+				}
+			});
+		}
+	</script>
+	
+	
+</body>
+</html>
